@@ -1,0 +1,48 @@
+#!/bin/bash
+
+source validate.sh
+source grade.sh
+
+# This script takes input for a users assignments, tests and exams and returns the grade they earned for CST8102
+# This script validates the input to make sure that a valid number is input
+
+echo "Enter assignment mark (0 to 40): "
+read assignment
+
+echo "Enter Test1 mark (0 to 15): "
+read test1
+
+echo "Enter Test2 mark (0 to 15): "
+read test2
+
+echo "Enter Final Exam mark (0 to 30): "
+read exam
+
+if ! validate_number_two "$assignment" || [[ "$assignment" -gt 40 ]]; then
+	echo "Please input a valid Assignment score."
+        echo "Ensure that your value is non-negative, non-decimal, and within 0 to 40 (inclusive)."
+        exit 1
+fi
+
+if ! validate_number_two "$test1" || [[ "$test1" -gt 15 ]]; then
+        echo "Please input a valid Test1 score."
+        echo "Ensure that your value is non-negative, non-decimal, and within 0 to 15 (inclusive)."
+        exit 1
+fi
+
+if ! validate_number_two "$test2" || [[ "$test2" -gt 15 ]]; then
+        echo "Please input a valid Test2 score."
+        echo "Ensure that your value is non-negative, non-decimal, and within 0 to 15 (inclusive)."
+        exit 1
+fi
+
+if ! validate_number_two "$exam" || [[ "$exam" -gt 30 ]]; then
+        echo "Please input a valid Exam score."
+        echo "Ensure that your value is non-negative, non-decimal, and within 0 to 30 (inclusive)."
+        exit 1
+fi
+
+total_score=$(( $assignment + $test1 + $test2 + $exam ))
+
+final_grade=$( grade "$total_score" )
+echo "Your final grade is $final_grade"
