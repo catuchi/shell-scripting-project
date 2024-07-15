@@ -1,0 +1,87 @@
+#!/bin/bash
+
+validate_number_two() {
+        # Function to check if user input in a number (does not allow -ve or decimal numbers)
+        if [[ $1 =~ ^[0-9]+$ ]]; then
+                return 0  # Return 0 for true (valid number)
+        else
+                return 1  # Return 1 for false (invalid number)
+        fi
+}
+
+grade() {
+        # Function to convert Number Grade to Letter Grade
+        if [ $1 -ge "90" ] && [ $1 -le "100" ]; then
+                echo "A+"
+        elif [ $1 -ge "85" ] && [ $1 -le "89" ]; then
+                echo "A"
+        elif [ $1 -ge "80" ] && [ $1 -le "84" ]; then
+                echo "A-"
+        elif [ $1 -ge "77" ] && [ $1 -le "79" ]; then
+                echo "B+"
+        elif [ $1 -ge "73" ] && [ $1 -le "76" ]; then
+                echo "B"
+        elif [ $1 -ge "70" ] && [ $1 -le "72" ]; then
+                echo "B-"
+        elif [ $1 -ge "67" ] && [ $1 -le "69" ]; then
+                echo "C+"
+        elif [ $1 -ge "63" ] && [ $1 -le "66" ]; then
+                echo "C"
+        elif [ $1 -ge "60" ] && [ $1 -le "62" ]; then
+                echo "C-"
+        elif [ $1 -ge "57" ] && [ $1 -le "59" ]; then
+                echo "D+"
+        elif [ $1 -ge "53" ] && [ $1 -le "56" ]; then
+                echo "D"
+        elif [ $1 -ge "50" ] && [ $1 -le "52" ]; then
+                echo "D-"
+        elif [ $1 -ge "0" ] && [ $1 -le "49" ]; then
+                echo "F"
+        else
+                echo "Error: Please Input a valid Number Grade"
+        fi
+}
+
+# This script takes input for a users assignments, tests and exams and returns the grade they earned for CST8102
+# This script validates the input to make sure that a valid number is input
+
+echo "Enter assignment mark (0 to 40): "
+read assignment
+
+echo "Enter Test1 mark (0 to 15): "
+read test1
+
+echo "Enter Test2 mark (0 to 15): "
+read test2
+
+echo "Enter Final Exam mark (0 to 30): "
+read exam
+
+if ! validate_number_two "$assignment" || [[ "$assignment" -gt 40 ]]; then
+        echo "Please input a valid Assignment score."
+        echo "Ensure that your value is non-negative, non-decimal, and within 0 to 40 (inclusive)."
+        exit 1
+fi
+
+if ! validate_number_two "$test1" || [[ "$test1" -gt 15 ]]; then
+        echo "Please input a valid Test1 score."
+        echo "Ensure that your value is non-negative, non-decimal, and within 0 to 15 (inclusive)."
+        exit 1
+fi
+
+if ! validate_number_two "$test2" || [[ "$test2" -gt 15 ]]; then
+        echo "Please input a valid Test2 score."
+        echo "Ensure that your value is non-negative, non-decimal, and within 0 to 15 (inclusive)."
+        exit 1
+fi
+
+if ! validate_number_two "$exam" || [[ "$exam" -gt 30 ]]; then
+        echo "Please input a valid Exam score."
+        echo "Ensure that your value is non-negative, non-decimal, and within 0 to 30 (inclusive)."
+        exit 1
+fi
+
+total_score=$(( $assignment + $test1 + $test2 + $exam ))
+
+final_grade=$( grade "$total_score" )
+echo "Your final grade is $final_grade"
