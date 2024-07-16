@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Debug mode
+# set -x
+
 source validate.sh
 source grade.sh
 
