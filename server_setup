@@ -1,35 +1,29 @@
 #!/bin/bash
 
-# This script automates the setup of a basic web server environment
+source validate.sh
 
-: <<'END_COMMENT'
-if [[ $EUID -eq 0 ]]; then
-    if [[ -n "$SUDO_COMMAND" ]]; then
-        echo "Script is running with sudo."
-    else
-        echo "Script is running as root, but not with sudo."
-    fi
-else
-    echo "This script must be run as root or with sudo." >&2
-    exit 1
-fi
-END_COMMENT
+# This script automates the setup of a basic web server environment
 
 if [ ! $EUID -eq 0 ] || [ ! -n "$SUDO_COMMAND" ]; then
 	echo "This script must be run as root or with sudo." >&2
 	exit 1
 fi
 
-read -p "Choose server to install (1 for Apache2, 2 for Nginx): " choice
+while true; do
+	read -p "Choose server to install (1 for Apache, 2 for Nginx): " choice
+	if validate_choice "$choice"; then
+		echo "good input"
+		break
+	fi
+done
 
-if [ $choice == 1 ]; then
-	server_name="apache2"
-elif [ $choice == 2 ]; then
-	server_name="nginx"
-else
-	echo "Invalid input. Please select 1 for Apache2 and 2 for Nginx." >&2
-	exit 1
-fi
+while true; do
+        read -p "Enter a hostname: " hname
+        if validate_hostname "$hname"; then
+                echo "Valid hostname: $hname"
+                break
+        fi
+done
 
 echo " "
 echo "Updating Package Index"
