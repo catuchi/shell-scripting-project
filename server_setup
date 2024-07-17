@@ -12,7 +12,6 @@ fi
 while true; do
 	read -p "Choose server to install (1 for Apache, 2 for Nginx): " choice
 	if validate_choice "$choice"; then
-		echo "good input"
 		break
 	fi
 done
@@ -20,7 +19,6 @@ done
 while true; do
         read -p "Enter a hostname: " hname
         if validate_hostname "$hname"; then
-                echo "Valid hostname: $hname"
                 break
         fi
 done
