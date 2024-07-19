@@ -1,0 +1,20 @@
+#!/bin/bash
+
+# This script will be used for user and group management
+
+cat <<EOF
+Hi! Here are our options!
+
+A) Create a user account
+B) Delete a user account
+C) Change supplementary group for a user account
+D) Change initial group for a user account
+E) Change default login shell for a user account
+F) Change account expiration date for a user account
+Q) Quit
+
+EOF
+
+read -p "What would you like to do today?: " user_input
+
+echo $user_input
