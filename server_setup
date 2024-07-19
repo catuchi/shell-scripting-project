@@ -1,6 +1,7 @@
 #!/bin/bash
 
 source validate.sh
+source create_html.sh
 
 # This script automates the setup of a basic web server environment
 
@@ -42,29 +43,41 @@ if [ $? -ne 0 ]; then
 fi
 
 echo ""
-echo "Creating default index.html page"
-touch index.html
+echo "Creating hello.html page"
+create_web_page
+
+echo ""
+echo "Copying hello.html file to /var/www/html to be served by $(capitalize_first_letter "$server_name")"
+cp -f ./hello.html /var/www/html/hello.html
 if [ $? -ne 0 ]; then
-	echo "Server created"
-        echo "Error: Failed to create index.html" >&2
+        echo "Error: Failed to copy file to /var/www/html" >&2
         exit 1
 fi
 
-: << 'END_COMMENT'
-cat <<EOF > index.html
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hello, World!</title>
-</head>
-<body>
-    <h1>Hello, World!</h1>
-    <p>This is a simple HTML page served by $(capitalize_first_letter "$server_name").</p>
-</body>
-</html>
-EOF
+echo ""
+sudo systemctl start $server_name
+if [ $? -ne 0 ]; then
+        echo "Error: Failed to start server" >&2
+        exit 1
+fi
 
-echo "index.html file created"
-END_COMMENT
+sudo systemctl enable $server_name
+if [ $? -ne 0 ]; then
+        echo "Error: Failed to enable server to start on boot" >&2
+        exit 1
+fi
+
+if [ "$server_name" == "apache2" ]; then
+	sudo ufw allow 'Apache'
+else
+	sudo ufw allow 'Nginx HTTP'
+fi
+
+if [ $? -ne 0 ]; then
+        echo "Error: Failed to adjust firewall settings" >&2
+        exit 1
+fi
+
+echo "Congratulations! Your server has been successfully created"
+echo "You can visit your hello.ht
+
