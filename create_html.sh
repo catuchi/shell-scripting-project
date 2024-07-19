@@ -9,7 +9,7 @@ create_web_page() {
 		exit 1
 	fi
 
-cat <<EOF > index.html
+cat <<EOF > hello.html
 <!DOCTYPE html>
 <html lang="en">
 <head>

@@ -79,5 +79,5 @@ if [ $? -ne 0 ]; then
 fi
 
 echo "Congratulations! Your server has been successfully created"
-echo "You can visit your hello.ht
+echo "You can visit your hello.html web page at http://134.122.40.38/hello.html"
 
