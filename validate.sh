@@ -50,3 +50,12 @@ validate_choice() {
                 return 1
         fi
 }
+
+capitalize_first_letter() {
+	# Function to capitalize the first letter of a single word
+	
+	local word="$1"
+	local first_letter="${word:0:1}"
+	local rest="${word:1}"
+	echo "${first_letter^}${rest}"
+}
