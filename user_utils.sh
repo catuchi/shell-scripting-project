@@ -143,3 +143,35 @@ change_supplementary_group() {
 
 change_initial_group() {
 	# Function to change the initial group for a user account
+	local username
+	local groupname
+
+	while true; do
+                read -p "Enter the username you would like to change the supplementary group for: " username
+                if [[ -z "${username// }" ]]; then
+                        echo "Please enter a username."
+                elif ! id -u "$username" > /dev/null 2>&1; then
+                        echo "Username does not exist."
+                else
+                        break
+                fi
+        done
+
+        while true; do
+                read -p "Enter the new initial group for $username: " groupname
+                if getent group "$groupname" > /dev/null; then
+                        echo "Group $groupname exists."
+                        break
+                else
+                        echo "Group $groupname does not exist."
+                fi
+        done
+
+	sudo usermod -g "$groupname" "$username"
+	if [ $? -eq 0 ]; then
+                echo "Primary group for User $username has been changed to Group $groupname successfully."
+        else
+                echo "Failed to change initial group for User $username" >&2
+                exit 1
+        fi
+}
