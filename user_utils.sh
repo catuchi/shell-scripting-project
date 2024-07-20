@@ -105,3 +105,41 @@ delete_user_account() {
             		;;
     	esac
 }
+
+change_supplementary_group() {
+	# Function to change the supplementary group for a user account
+	local username
+	local groupname
+
+	while true; do
+		read -p "Enter the username you would like to change the supplementary group for: " username
+		if [[ -z "${username// }" ]]; then
+			echo "Please enter a username."
+		elif ! id -u "$username" > /dev/null 2>&1; then
+			echo "Username does not exist."
+		else
+			break
+		fi
+	done
+
+	while true; do
+		read -p "Enter the new supplementary group for $username: " groupname
+		if getent group "$groupname" > /dev/null; then
+        		echo "Group $groupname exists."
+			break
+    		else
+        		echo "Group $groupname does not exist."
+    		fi
+	done
+
+	sudo usermod -aG "$groupname" "$username"
+	if [ $? -eq 0 ]; then
+        	echo "Supplementary group for User $username has been changed to Group $groupname successfully."
+        else
+        	echo "Failed to change supplementary group for User $username" >&2
+                exit 1
+        fi
+}
+
+change_initial_group() {
+	# Function to change the initial group for a user account

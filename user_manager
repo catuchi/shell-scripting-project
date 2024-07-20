@@ -34,9 +34,9 @@ if [ $user_input == 'A' ] || [ $user_input == 'a' ]; then
 elif [ $user_input == 'B' ] || [ $user_input == 'b' ]; then
         delete_user_account
 elif [ $user_input == 'C' ] || [ $user_input == 'c' ]; then
-        echo "Change supplementary group for a user account"
+        change_supplementary_group
 elif [ $user_input == 'D' ] || [ $user_input == 'd' ]; then
-        echo "Change initial group for a user account"
+        change_initial_group
 elif [ $user_input == 'E' ] || [ $user_input == 'e' ]; then
         echo "Change default login shell for a user account"
 elif [ $user_input == 'F' ] || [ $user_input == 'f' ]; then
