@@ -40,7 +40,6 @@ validate_hostname() {
 validate_input() {
 	# Function to validate that input is one of A, B, C, D, E, F, Q (lowercase inclusive). Returns 0 for true and 1 for false
 	
-	validate_input() {
   	local valid_inputs="A B C D E F Q a b c d e f q"
 
   	if [[ $valid_inputs =~ (^|[[:space:]])$1($|[[:space:]]) ]]; then
@@ -71,4 +70,13 @@ capitalize_first_letter() {
 	local first_letter="${word:0:1}"
 	local rest="${word:1}"
 	echo "${first_letter^}${rest}"
+}
+
+is_valid_shell() {
+	# Function to check if user's choice for shell is valid
+    	if grep -Fxq "$1" /etc/shells; then
+        	return 0
+    	else
+        	return 1
+    	fi
 }

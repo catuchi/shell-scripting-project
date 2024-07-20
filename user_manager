@@ -4,6 +4,19 @@
 
 source validate.sh
 
+: << 'END_COMMENT'
+echo "enter shell"
+read input
+
+if is_valid_shell "$input"; then
+	echo "valid"
+	exit 0
+else 
+	echo "not valid"
+	exit 1
+fi
+END_COMMENT
+
 cat <<EOF
 Hi! Here are our options!
 
@@ -17,14 +30,6 @@ Q) Quit
 
 EOF
 
-: << 'END_COMMENT'
-read -p "What would you like to do today?: " user_input
-
-echo $user_input
-
-validate_input "$user_input"
-END_COMMENT
-
 while true; do
 	read -p "What would you like to do today?: " user_input
 	if validate_input "$user_input"; then
@@ -34,4 +39,57 @@ while true; do
 	fi
 done
 
-echo "you made it here"
+echo ""
+
+: << 'END_COMMENT'
+if [[ -z "${1// }" ]]; then
+	echo "Invalid hostname: Input cannot be empty or just spaces."
+        return 1
+fi
+END_COMMENT
+
+create_user_account() {
+	# Function to create a new user account. Takes in username, user's home directory and default login shell
+	local username
+	local home_dir
+	local login_shell
+
+	while true; do
+		read -p "Enter the new username: " username
+		if [[ -z "${username// }" ]]; then
+        		echo "Please enter a username"
+		elif grep -q "^$username:" /etc/passwd; then
+			echo "Username already exists"
+		else
+			break
+		fi
+	done
+
+	read -p "Enter the home directory (Press enter for default: /home/$username): " home_dir
+	home_dir=${home_dir:-/home/$username}
+
+	while true; do
+		read -p "Enter the login shell (default: /bin/bash): " login_shell
+		if if_valid_shell "$login_shell"; then
+			login_shell
+
+
+if [ $user_input == 'A' ] || [ $user_input == 'a' ]; then
+	echo "Create a user account"
+elif [ $user_input == 'B' ] || [ $user_input == 'b' ]; then
+        echo "Delete a user account"
+elif [ $user_input == 'C' ] || [ $user_input == 'c' ]; then
+        echo "Change supplementary group for a user account"
+elif [ $user_input == 'D' ] || [ $user_input == 'd' ]; then
+        echo "Change initial group for a user account"
+elif [ $user_input == 'E' ] || [ $user_input == 'e' ]; then
+        echo "Change default login shell for a user account"
+elif [ $user_input == 'F' ] || [ $user_input == 'f' ]; then
+        echo "Change account expiration date for a user account"
+elif [ $user_input == 'Q' ] || [ $user_input == 'q' ]; then
+        echo "Quit"
+	exit 0
+else
+	echo "Something went wrong, please try again"
+	exit 1
+fi
