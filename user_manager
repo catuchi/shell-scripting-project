@@ -1,0 +1,338 @@
+#!/bin/bash
+
+# This script will be used for user and group management
+# Chibu Atuchi, 041143367, 20/07/24
+# Assignment #9
+# Script file: user_manager
+
+validate_input() {
+        # Function to validate that input is one of A, B, C, D, E, F, Q (lowercase inclusive). Returns 0 for true and 1 for false
+
+        local valid_inputs="A B C D E F Q a b c d e f q"
+
+        if [[ $valid_inputs =~ (^|[[:space:]])$1($|[[:space:]]) ]]; then
+                return 0  # Valid input
+        else
+                return 1  # Invalid input
+        fi
+}
+
+is_valid_shell() {
+        # Function to check if user's choice for shell is valid
+        if grep -Fxq "$1" /etc/shells; then
+                return 0
+        else
+                return 1
+        fi
+}
+
+validate_date_format() {
+        # Function to check user's input for date is in valid and in the format YYYY-MM-DD
+        local date="$1"
+        local format="^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+
+        # Check if the date matches the format
+        if [[ ! "$date" =~ $format ]]; then
+                echo "Invalid date format. Please use YYYY-MM-DD."
+                return 1
+        fi
+
+        # Check if the date is valid
+        if ! date -d "$date" > /dev/null 2>&1; then
+                echo "Invalid date. Please provide a valid date."
+                return 1
+        fi
+
+        return 0
+}
+
+# This script contains functions for user and group management
+
+create_user_account() {
+        # Function to create a new user account.
+        local username
+        local input_dir
+        local login_shell
+        local home_dir
+
+        while true; do
+                read -p "Enter the new username: " username
+                if [[ -z "${username// }" ]]; then
+                        echo "Please enter a username."
+                elif grep -q "^$username:" /etc/passwd; then
+                        echo "Username already exists."
+                else
+                        break
+                fi
+        done
+
+        while true; do
+                read -p "Enter the home directory (Press enter for default: /home/$username): " input_dir
+
+                if [[ "$input_dir" =~ ^/home/[a-zA-Z0-9_]+$ ]]; then
+                        if [[ -d "$input_dir" ]]; then
+                                echo "Directory $input_dir already exists."
+                                echo "Please enter a valid path or press Enter to use the default: /home/$username"
+                        elif [[ -d "$(dirname "$input_dir")" ]]; then
+                                home_dir=$input_dir
+                                break
+                        elif [[ -z "${input_dir// }" ]]; then
+                                home_dir="/home/$username"
+                                break
+                        else
+                                echo "Invalid directory path. Please enter a valid path or press Enter to use the default: /home/$username"
+                        fi
+                elif [[ -z "${input_dir// }" ]]; then
+                        home_dir="/home/$username"
+                        break
+                else
+                         echo "Invalid directory format. Please enter correct format '/home/username' or press Enter to use the default: /home/$username"
+                fi
+        done
+
+        # prompt for login shell with default value and validation
+        while true; do
+		read -p "Enter the login shell (default: /bin/bash): " login_shell
+                login_shell=${login_shell:-/bin/bash}  # Default if no input is given
+
+                if is_valid_shell "$login_shell"; then
+                        break
+                else
+                        echo "Invalid shell. Please enter a valid shell or press Enter to use the default: /bin/bash"
+                fi
+        done
+
+        # Create the user
+        sudo useradd -m -d "$home_dir" -s "$login_shell" "$username"
+        if [ $? -ne 0 ]; then
+                echo "Error: Failed to create user." >&2
+                exit 1
+        fi
+
+        echo "User $username has been created and configured."
+}
+
+delete_user_account() {
+        # Function to delete user account (and user's home directory).
+        local username
+
+        while true; do
+                read -p "Enter the username to delete: " username
+                if [[ -z "${username// }" ]]; then
+                        echo "Please enter a username."
+                elif ! id -u "$username" > /dev/null 2>&1; then
+                        echo "Username does not exist."
+                else
+                        break
+                fi
+        done
+
+        read -p "Are you sure you want to delete the user $username and their home directory? (y/n): " confirm
+        case "$confirm" in
+                [yY] | [yY][eE][sS] | [yY][aA] | [yY][uU][pP] | [yY][eE][aA] | [yY][eE][aA][hH])
+                        sudo userdel -rf "$username"
+                        if [ $? -eq 0 ]; then
+                                echo "User $username has been deleted."
+                        else
+                                echo "Failed to delete user $username." >&2
+                                exit 1
+                        fi
+                        ;;
+                *)
+                        echo "User deletion cancelled."
+                        ;;
+        esac
+}
+
+change_supplementary_group() {
+        # Function to change the supplementary group for a user account
+        local username
+        local groupname
+
+        while true; do
+                read -p "Enter the username you would like to change the supplementary group for: " username
+                if [[ -z "${username// }" ]]; then
+                        echo "Please enter a username."
+                elif ! id -u "$username" > /dev/null 2>&1; then
+                        echo "Username does not exist."
+                else
+                        break
+                fi
+        done
+
+        while true; do
+                read -p "Enter the new supplementary group for $username: " groupname
+                if getent group "$groupname" > /dev/null; then
+                        echo "Group $groupname exists."
+                        break
+                else
+                        echo "Group $groupname does not exist."
+                fi
+        done
+
+        sudo usermod -aG "$groupname" "$username"
+        if [ $? -eq 0 ]; then
+                echo "Supplementary group for User $username has been changed to Group $groupname successfully."
+        else
+		echo "Failed to change supplementary group for User $username" >&2
+                exit 1
+        fi
+}
+
+change_initial_group() {
+        # Function to change the initial group for a user account
+        local username
+        local groupname
+
+        while true; do
+                read -p "Enter the username you would like to change the supplementary group for: " username
+                if [[ -z "${username// }" ]]; then
+                        echo "Please enter a username."
+                elif ! id -u "$username" > /dev/null 2>&1; then
+                        echo "Username does not exist."
+                else
+                        break
+                fi
+        done
+
+        while true; do
+                read -p "Enter the new initial group for $username: " groupname
+                if getent group "$groupname" > /dev/null; then
+                        echo "Group $groupname exists."
+                        break
+                else
+                        echo "Group $groupname does not exist."
+                fi
+        done
+
+        sudo usermod -g "$groupname" "$username"
+        if [ $? -eq 0 ]; then
+                echo "Primary group for User $username has been changed to Group $groupname successfully."
+        else
+                echo "Failed to change initial group for User $username" >&2
+                exit 1
+        fi
+}
+
+change_default_shell() {
+        # Function to change the default login shell for a user account
+        local username
+        local new_shell
+
+        while true; do
+		read -p "Enter the username you would like to change the supplementary group for: " username
+                if [[ -z "${username// }" ]]; then
+                        echo "Please enter a username."
+                elif ! id -u "$username" > /dev/null 2>&1; then
+                        echo "Username does not exist."
+                else
+                        break
+                fi
+        done
+
+        while true; do
+                read -p "Enter the new login shell (default: /bin/bash): " new_shell
+                new_shell=${new_shell:-/bin/bash}  # Default if no input is given
+
+                if is_valid_shell "$new_shell"; then
+                        break
+                else
+                        echo "Invalid shell. Please enter a valid shell or press Enter to use the default: /bin/bash"
+                fi
+        done
+
+        sudo usermod -s "$new_shell" "$username"
+        if [ $? -eq 0 ]; then
+                echo "User $username's login shell has been changed to $new_shell"
+        else
+                echo "Failed to change login shell for User $username" >&2
+                exit 1
+        fi
+}
+
+change_account_expiration_date() {
+        # Function to change account expiration date for a user account
+        local username
+        local exp_date
+
+        while true; do
+                read -p "Enter the username you would like to change the supplementary group for: " username
+                if [[ -z "${username// }" ]]; then
+                        echo "Please enter a username."
+                elif ! id -u "$username" > /dev/null 2>&1; then
+                        echo "Username does not exist."
+                else
+                        break
+                fi
+        done
+
+	while true; do
+                read -p "Enter the expiration date (YYYY-MM-DD): " exp_date
+                if validate_date_format "$exp_date"; then
+                        echo "The date $exp_date is valid."
+                        break
+                else
+                        echo "Please enter a valid date."
+                fi
+        done
+
+        sudo chage -E "$exp_date" "$username"
+        if [ $? -eq 0 ]; then
+                echo "User $username's account expiration date has been changed to $exp_date"
+        else
+                echo "Failed to change account expiration date for User $username" >&2
+                exit 1
+        fi
+}
+
+choice="g"
+
+while [ "$choice" != "Q" ] && [ "$choice" != "q" ];
+do
+cat <<EOF
+Hi! Here are our options!
+
+A) Create a user account
+B) Delete a user account
+C) Change supplementary group for a user account
+D) Change initial group for a user account
+E) Change default login shell for a user account
+F) Change account expiration date for a user account
+Q) Quit
+
+EOF
+
+while true; do
+        read -p "What would you like to do today?: " user_input
+        if validate_input "$user_input"; then
+                break
+        else
+                echo "Invalid option"
+        fi
+done
+
+echo ""
+
+if [ "$user_input" = 'A' ] || [ "$user_input" = 'a' ]; then
+        create_user_account
+elif [ "$user_input" = 'B' ] || [ "$user_input" = 'b' ]; then
+        delete_user_account
+elif [ "$user_input" = 'C' ] || [ "$user_input" = 'c' ]; then
+        change_supplementary_group
+elif [ "$user_input" = 'D' ] || [ "$user_input" = 'd' ]; then
+        change_initial_group
+elif [ "$user_input" = 'E' ] || [ "$user_input" = 'e' ]; then
+        change_default_shell
+elif [ "$user_input" = 'F' ] || [ "$user_input" = 'f' ]; then
+	change_account_expiration_date
+elif [ "$user_input" = 'Q' ] || [ "$user_input" = 'q' ]; then
+        echo "Goodbye!"
+        exit 0
+else
+        echo "Something went wrong, please try again"
+        exit 1
+fi
+
+sleep 3
+
+done
