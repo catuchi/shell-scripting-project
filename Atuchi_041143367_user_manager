@@ -3,7 +3,7 @@
 # This script will be used for user and group management
 # Chibu Atuchi, 041143367, 20/07/24
 # Assignment #9
-# Script file: user_manager
+# Script file: Atuchi_041143367_user_manager
 
 validate_input() {
         # Function to validate that input is one of A, B, C, D, E, F, Q (lowercase inclusive). Returns 0 for true and 1 for false
