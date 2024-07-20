@@ -37,6 +37,19 @@ validate_hostname() {
         fi
 }
 
+validate_input() {
+	# Function to validate that input is one of A, B, C, D, E, F, Q (lowercase inclusive). Returns 0 for true and 1 for false
+	
+	validate_input() {
+  	local valid_inputs="A B C D E F Q a b c d e f q"
+
+  	if [[ $valid_inputs =~ (^|[[:space:]])$1($|[[:space:]]) ]]; then
+    		return 0  # Valid input
+  	else
+    		return 1  # Invalid input
+  	fi
+}
+
 validate_choice() {
 	# Function to check user input for server choice
 	

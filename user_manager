@@ -2,6 +2,8 @@
 
 # This script will be used for user and group management
 
+source validate.sh
+
 cat <<EOF
 Hi! Here are our options!
 
@@ -15,6 +17,21 @@ Q) Quit
 
 EOF
 
+: << 'END_COMMENT'
 read -p "What would you like to do today?: " user_input
 
 echo $user_input
+
+validate_input "$user_input"
+END_COMMENT
+
+while true; do
+	read -p "What would you like to do today?: " user_input
+	if validate_input "$user_input"; then
+		break
+	else 
+		echo "Invalid option"
+	fi
+done
+
+echo "you made it here"
