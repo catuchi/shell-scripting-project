@@ -5,6 +5,10 @@
 source validate.sh
 source user_utils.sh
 
+choice="g"
+
+while [ "$choice" != "Q" ] && [ "$choice" != "q" ];
+do
 cat <<EOF
 Hi! Here are our options!
 
@@ -29,22 +33,26 @@ done
 
 echo ""
 
-if [ $user_input == 'A' ] || [ $user_input == 'a' ]; then
+if [ "$user_input" = 'A' ] || [ "$user_input" = 'a' ]; then
 	create_user_account
-elif [ $user_input == 'B' ] || [ $user_input == 'b' ]; then
+elif [ "$user_input" = 'B' ] || [ "$user_input" = 'b' ]; then
         delete_user_account
-elif [ $user_input == 'C' ] || [ $user_input == 'c' ]; then
+elif [ "$user_input" = 'C' ] || [ "$user_input" = 'c' ]; then
         change_supplementary_group
-elif [ $user_input == 'D' ] || [ $user_input == 'd' ]; then
+elif [ "$user_input" = 'D' ] || [ "$user_input" = 'd' ]; then
         change_initial_group
-elif [ $user_input == 'E' ] || [ $user_input == 'e' ]; then
+elif [ "$user_input" = 'E' ] || [ "$user_input" = 'e' ]; then
         change_default_shell
-elif [ $user_input == 'F' ] || [ $user_input == 'f' ]; then
+elif [ "$user_input" = 'F' ] || [ "$user_input" = 'f' ]; then
         change_account_expiration_date
-elif [ $user_input == 'Q' ] || [ $user_input == 'q' ]; then
+elif [ "$user_input" = 'Q' ] || [ "$user_input" = 'q' ]; then
         echo "Goodbye!"
 	exit 0
 else
 	echo "Something went wrong, please try again"
 	exit 1
 fi
+
+sleep 3
+
+done
