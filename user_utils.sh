@@ -175,3 +175,74 @@ change_initial_group() {
                 exit 1
         fi
 }
+
+change_default_shell() {
+	# Function to change the default login shell for a user account
+	local username
+	local new_shell
+
+	while true; do
+                read -p "Enter the username you would like to change the supplementary group for: " username
+                if [[ -z "${username// }" ]]; then
+                        echo "Please enter a username."
+                elif ! id -u "$username" > /dev/null 2>&1; then
+                        echo "Username does not exist."
+                else
+                        break
+                fi
+        done
+
+	while true; do
+                read -p "Enter the new login shell (default: /bin/bash): " new_shell
+                new_shell=${new_shell:-/bin/bash}  # Default if no input is given
+
+                if is_valid_shell "$new_shell"; then
+                        break
+                else
+                        echo "Invalid shell. Please enter a valid shell or press Enter to use the default: /bin/bash"
+                fi
+        done
+
+	sudo usermod -s "$new_shell" "$username"
+	if [ $? -eq 0 ]; then
+                echo "User $username's login shell has been changed to $new_shell"
+        else
+                echo "Failed to change login shell for User $username" >&2
+                exit 1
+        fi
+}
+
+change_account_expiration_date() {
+	# Function to change account expiration date for a user account
+	local username
+	local exp_date
+
+	while true; do
+                read -p "Enter the username you would like to change the supplementary group for: " username
+                if [[ -z "${username// }" ]]; then
+                        echo "Please enter a username."
+                elif ! id -u "$username" > /dev/null 2>&1; then
+                        echo "Username does not exist."
+                else
+                        break
+                fi
+        done
+
+	while true; do
+    		read -p "Enter the expiration date (YYYY-MM-DD): " exp_date
+    		if validate_date_format "$exp_date"; then
+        		echo "The date $exp_date is valid."
+        		break
+    		else
+        		echo "Please enter a valid date."
+    		fi
+	done
+
+	sudo chage -E "$exp_date" "$username"
+	if [ $? -eq 0 ]; then
+                echo "User $username's account expiration date has been changed to $exp_date"
+        else
+                echo "Failed to change account expiration date for User $username" >&2
+                exit 1
+        fi
+}

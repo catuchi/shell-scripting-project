@@ -38,11 +38,11 @@ elif [ $user_input == 'C' ] || [ $user_input == 'c' ]; then
 elif [ $user_input == 'D' ] || [ $user_input == 'd' ]; then
         change_initial_group
 elif [ $user_input == 'E' ] || [ $user_input == 'e' ]; then
-        echo "Change default login shell for a user account"
+        change_default_shell
 elif [ $user_input == 'F' ] || [ $user_input == 'f' ]; then
-        echo "Change account expiration date for a user account"
+        change_account_expiration_date
 elif [ $user_input == 'Q' ] || [ $user_input == 'q' ]; then
-        echo "Quit"
+        echo "Goodbye!"
 	exit 0
 else
 	echo "Something went wrong, please try again"

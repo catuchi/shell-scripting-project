@@ -80,3 +80,23 @@ is_valid_shell() {
         	return 1
     	fi
 }
+
+validate_date_format() {
+	# Function to check user's input for date is in valid and in the format YYYY-MM-DD
+    	local date="$1"
+    	local format="^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+
+    	# Check if the date matches the format
+    	if [[ ! "$date" =~ $format ]]; then
+        	echo "Invalid date format. Please use YYYY-MM-DD."
+        	return 1
+    	fi
+
+    	# Check if the date is valid
+    	if ! date -d "$date" > /dev/null 2>&1; then
+        	echo "Invalid date. Please provide a valid date."
+        	return 1
+    	fi
+
+    	return 0
+}
