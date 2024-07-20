@@ -1,7 +1,7 @@
 # This script contains functions for user and group management
 
 create_user_account() {
-        # Function to create a new user account. Takes in username, user's home directory and default login shell
+        # Function to create a new user account.
         local username
         local input_dir
         local login_shell
@@ -53,14 +53,14 @@ create_user_account() {
                         echo "Invalid shell. Please enter a valid shell or press Enter to use the default: /bin/bash"
                 fi
         done
-: << 'END_COMMENT'
+
         # Create the user
         sudo useradd -m -d "$home_dir" -s "$login_shell" "$username"
         if [ $? -ne 0 ]; then
                 echo "Error: Failed to create user." >&2
                 exit 1
         fi
-
+: << 'END_COMMENT'
         echo "Enter password for $username:"
         sudo passwd "$username"
         if [ $? -ne 0 ]; then
@@ -72,4 +72,36 @@ END_COMMENT
         echo $home_dir
         echo $login_shell
         echo "User $username has been created and configured."
+}
+
+delete_user_account() {
+	# Function to delete user account (and user's home directory).
+	local username
+
+	while true; do
+		read -p "Enter the username to delete: " username
+		if [[ -z "${username// }" ]]; then
+            		echo "Please enter a username."
+        	elif ! id -u "$username" > /dev/null 2>&1; then
+            		echo "Username does not exist."
+        	else
+            		break
+        	fi
+    	done
+
+	read -p "Are you sure you want to delete the user $username and their home directory? (y/n): " confirm
+	case "$confirm" in
+        	[yY] | [yY][eE][sS] | [yY][aA] | [yY][uU][pP] | [yY][eE][aA] | [yY][eE][aA][hH])
+            		sudo userdel -rf "$username"
+            		if [ $? -eq 0 ]; then
+                		echo "User $username has been deleted."
+            		else
+                		echo "Failed to delete user $username." >&2
+                		exit 1
+            		fi
+            		;;
+        	*)
+            		echo "User deletion cancelled."
+            		;;
+    	esac
 }
