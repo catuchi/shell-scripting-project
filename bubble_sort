@@ -1,0 +1,54 @@
+#!/bin/bash
+
+# Assignment: 10
+# Name: Chibu Atuchi
+# Student Number: 041143367
+# Lab Section Number: 3
+# Script Name: bubble_sort
+# Date: 08/05/2024
+# Description: This script sorts an array of integers using the bubble sort algorithm.
+
+# Function to swap two elements in an array
+swap() {
+    local i=$1
+    local j=$2
+    local temp=${array[i]}
+    array[i]=${array[j]}
+    array[j]=$temp
+}
+
+# Function to perform bubble sort on an array
+bubble_sort() {
+    local n=${#array[@]}
+    local swapped
+
+    for ((i = 0; i < n-1; i++)); do
+        swapped=false
+        for ((j = 0; j < n-i-1; j++)); do
+            if ((array[j] > array[j+1])); then
+                swap $j $((j+1))
+                swapped=true
+                # Output the current state of the array
+                echo "Current state of array: ${array[*]}"
+            fi
+        done
+        # If no two elements were swapped by inner loop, then break
+        if [ "$swapped" = false ]; then
+            break
+        fi
+    done
+}
+
+# Main script execution
+if (( $# < 4 || $# > 12 )); then
+    echo "Please provide between 4 and 12 integers."
+    exit 1
+fi
+
+# Store the input integers in an array
+array=("$@")
+
+echo "Original array: ${array[*]}"
+bubble_sort
+echo "Sorted array: ${array[*]}"
+
